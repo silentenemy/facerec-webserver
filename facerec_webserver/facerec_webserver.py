@@ -14,33 +14,38 @@ import time
 import cv2
 import numpy as np
 import face_recognition
+import os
 
+# initialize the output frame and a lock used to ensure thread-safe
+# exchanges of the output frames (useful when multiple browsers/tabs
+# are viewing the stream)
+outputFrame = None
+lock = Lock()
+# initialize a flask object
+app = Flask(__name__)
+
+known_face_encodings = []
+known_face_names = []
 
 @app.route("/")
 def index():
 	# return the rendered template
 	return render_template("index.html")
 
+def load_faces():
+	global known_face_encodings, known_face_names
+
+	files = os.listdir('./faces/')
+	for file in files:
+		image = face_recognition.load_image_file('faces/'+file)
+		known_face_encodings.append(face_recognition.face_encodings(image)[0])
+		known_face_names.append(file.split('.')[0])
+
 def recognize(outputFrame):
 	# grab global references to the video stream, output frame, and
 	# lock variables
 	vs = VideoStream(src=0).start()
 	time.sleep(2.0)
-
-	true_image1 = face_recognition.load_image_file("Denis.jpg")
-	true_face_encoding1 = face_recognition.face_encodings(true_image1)[0]
-	true_image2 = face_recognition.load_image_file("Polina.jpg")
-	true_face_encoding2 = face_recognition.face_encodings(true_image2)[0]
-
-	known_face_encodings = [
-    	true_face_encoding1,
-		true_face_encoding2
-	]
-
-	known_face_names = [
-		"Denis",
-		"Polina"
-	]
 
 	# loop over frames from the video stream
 	while True:
@@ -111,13 +116,7 @@ def video_feed():
 		mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 def main():
-	# initialize the output frame and a lock used to ensure thread-safe
-	# exchanges of the output frames (useful when multiple browsers/tabs
-	# are viewing the stream)
-	outputFrame = None
-	lock = Lock()
-	# initialize a flask object
-	app = Flask(__name__)
+	global outputFrame, lock, app
 
 	# construct the argument parser and parse command line arguments
 	ap = argparse.ArgumentParser()
@@ -128,6 +127,9 @@ def main():
 	args = vars(ap.parse_args())
 	# start a thread that will perform motion detection
 	outputFrame = Manager().list()
+
+	load_faces()
+	print('added', len(known_face_encodings), 'faces')
 
 	p = Process(target=recognize, args=(outputFrame,))
 	p.start()
