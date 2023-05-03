@@ -51,11 +51,20 @@ def recognize(outputFrame):
 	vs.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc('M','J','P','G'))
 	time.sleep(2.0)
 
+	process = 0
+	one_in_a = 5
+
 	# loop over frames from the video stream
 	while True:
 		# read the next frame from the video stream, resize it,
 		# convert the frame to grayscale, and blur it
 		ret, frame = vs.read()
+		process += 1
+		if process != one_in_a:
+			continue
+		else:
+			process = 0
+
 		frame = imutils.resize(frame, width=200) # DOWNSIZE!!!
 
 		rgb_frame = frame[:, :, ::-1]
