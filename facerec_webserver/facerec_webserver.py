@@ -56,7 +56,7 @@ def recognize(outputFrame):
 		# read the next frame from the video stream, resize it,
 		# convert the frame to grayscale, and blur it
 		ret, frame = vs.read()
-		frame = imutils.resize(frame, width=320) # DOWNSIZE!!!
+		frame = imutils.resize(frame, width=200) # DOWNSIZE!!!
 
 		rgb_frame = frame[:, :, ::-1]
 
