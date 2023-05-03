@@ -44,15 +44,19 @@ def load_faces():
 def recognize(outputFrame):
 	# grab global references to the video stream, output frame, and
 	# lock variables
-	vs = VideoStream(src=0).start()
+	vs = cv2.VideoCapture(0)
+	vs.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+	vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+	vs.set(cv2.CAP_PROP_FPS, 20)
+	vs.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc('M','J','P','G'))
 	time.sleep(2.0)
 
 	# loop over frames from the video stream
 	while True:
 		# read the next frame from the video stream, resize it,
 		# convert the frame to grayscale, and blur it
-		frame = vs.read()
-		frame = imutils.resize(frame, width=240) # DOWNSIZE!!!
+		ret, frame = vs.read()
+		frame = imutils.resize(frame, width=320) # DOWNSIZE!!!
 
 		rgb_frame = frame[:, :, ::-1]
 
