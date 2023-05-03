@@ -1,1 +1,1 @@
-include facerec-webserver/templates/index.html
+include facerec_webserver/templates/index.html
